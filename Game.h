@@ -79,7 +79,7 @@ enum class GameState {
 class Game {
 private:
     GLFWwindow* window;
-    Renderer2D renderer;
+    Renderer2D* renderer;
     
     InputManager* inputManager;
     AssetManager assetManager;
@@ -93,12 +93,13 @@ private:
     float lastTime;
     
 public:
-    Game() : inputManager(nullptr), uiRenderer(nullptr), 
+    Game() : renderer(nullptr), inputManager(nullptr), uiRenderer(nullptr), 
              state(GameState::START_SCREEN), selectedChar(0) {
         srand((unsigned)time(0));
     }
     
     ~Game() {
+        delete renderer;
         delete inputManager;
         delete uiRenderer;
     }
@@ -113,12 +114,19 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         
-        window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Metro Runner", NULL, NULL);
+        // Get primary monitor for fullscreen
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        
+        // Create fullscreen window with monitor resolution
+        window = glfwCreateWindow(mode->width, mode->height, "Metro Runner", monitor, NULL);
         if (!window) {
             std::cerr << "Failed to create window\n";
             glfwTerminate();
             return false;
         }
+        
+        std::cout << "Fullscreen mode: " << mode->width << "x" << mode->height << std::endl;
         
         glfwMakeContextCurrent(window);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -129,8 +137,9 @@ public:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
+        renderer = new Renderer2D();
         inputManager = new InputManager(window);
-        uiRenderer = new UIRenderer(renderer);
+        uiRenderer = new UIRenderer(*renderer);
         
         if (!assetManager.loadAssets()) {
             return false;
@@ -293,23 +302,23 @@ public:
     }
     
     void renderPlaying() {
-        renderer.drawQuad(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, 0.7, 0.85, 0.95);
+        renderer->drawQuad(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, 0.7, 0.85, 0.95);
         
         // Render metros
         for (const auto& metro : gameWorld.getMetros()) {
-            renderer.drawQuad(metro.x, metro.y, metro.width, 100, assetManager.getMetroTexture());
+            renderer->drawQuad(metro.x, metro.y, metro.width, 100, assetManager.getMetroTexture());
         }
         
         // Render obstacles
         for (const auto& obs : gameWorld.getObstacles()) {
             float r = obs.isFlying ? 1.0f : 0.8f;
             float g = obs.isFlying ? 0.5f : 0.2f;
-            renderer.drawQuad(obs.x, obs.y, obs.width, obs.height, nullptr, r, g, 0.2f);
+            renderer->drawQuad(obs.x, obs.y, obs.width, obs.height, nullptr, r, g, 0.2f);
         }
         
         // Render coins
         for (const auto& coin : gameWorld.getCoins()) {
-            renderer.drawQuad(coin.x, coin.y, coin.size, coin.size, nullptr, 1, 0.84, 0);
+            renderer->drawQuad(coin.x, coin.y, coin.size, coin.size, nullptr, 1, 0.84, 0);
         }
         
         // Render player
