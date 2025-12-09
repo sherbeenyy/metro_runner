@@ -1,5 +1,86 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+
+/**
+ * Player Class
+ * ============
+ * 
+ * PURPOSE:
+ * Manages player physics, movement, and character-specific abilities.
+ * Handles jumping mechanics including double jump and gravity simulation.
+ * 
+ * RESPONSIBILITIES:
+ * - Track player position and velocity
+ * - Handle jump physics with gravity
+ * - Manage character-specific abilities (4 unique abilities)
+ * - Track ability timers and cooldowns
+ * - Provide speed multipliers for dash ability
+ * - Handle double jump mechanic for specific character
+ * 
+ * PHYSICS:
+ * - Player dimensions: 40px width x 80px height
+ * - Jump velocity: -12 (upward)
+ * - Gravity: 0.5f (downward acceleration)
+ * - Delta-time based movement for smooth animation
+ * - Ground collision detection for landing
+ * 
+ * CHARACTER ABILITIES (4 CHARACTERS):
+ * 
+ * Character 0 (BIG JOE) - Shield:
+ * - Duration: 5 seconds
+ * - Effect: Complete invincibility to obstacles
+ * - Cooldown: 8 seconds
+ * 
+ * Character 1 (ALI 3ALOKA) - Double Jump:
+ * - Duration: 8 seconds
+ * - Effect: Can jump again while in air
+ * - Cooldown: 8 seconds
+ * - Implementation: canDoubleJump flag, hasDoubleJumped tracking
+ * 
+ * Character 2 (HAMDA) - Magnet:
+ * - Duration: 6 seconds
+ * - Effect: Coins worth 2x (double coin bonus)
+ * - Cooldown: 8 seconds
+ * 
+ * Character 3 (SPEEDY) - Dash:
+ * - Duration: 5 seconds
+ * - Effect: 1.8x speed multiplier
+ * - Cooldown: 8 seconds
+ * - Affects player movement and world scroll speed
+ * 
+ * ABILITY SYSTEM:
+ * - Activation: Q key press
+ * - All abilities have 8 second cooldown after use
+ * - Timers count down in real-time (delta-time based)
+ * - Visual feedback through HUD (timer/cooldown display)
+ * - Debug output on ability activation
+ * 
+ * STATE TRACKING:
+ * - Position: x, y coordinates
+ * - Velocity: velocityY (vertical movement only)
+ * - Jumping: isJumping flag
+ * - Ability: abilityActive, abilityTimer, abilityCooldown
+ * - Character: headIndex (0-3 for different characters)
+ * - Double Jump: canDoubleJump, hasDoubleJumped flags
+ * 
+ * METHODS:
+ * - jump(): Initiate jump or double jump
+ * - update(): Update timers and ability states
+ * - activateAbility(): Start character-specific ability
+ * - isInvincible(): Check shield status
+ * - hasDoubleCoinBonus(): Check magnet status
+ * - getPlayerSpeedMultiplier(): Get dash speed multiplier
+ * - getSpeedMultiplier(): Legacy speed modifier (always 1.0)
+ * 
+ * USED BY:
+ * - Game class (updates player state, handles input)
+ * - GameWorld class (queries abilities for collision/bonuses)
+ * - UIRenderer (displays player and ability status)
+ * 
+ * DEPENDENCIES:
+ * - iostream for debug output
+ */
+
 #include <iostream>
 
 class Player {
