@@ -116,7 +116,7 @@ public:
     }
     
     // Check if character is invincible
-    bool isInvincible() {
+    bool isInvincible() const {
         // Character 0 (p1.PNG): Shield - invincibility during ability
         return headIndex == 0 && abilityActive;
     }
